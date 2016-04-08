@@ -1,0 +1,119 @@
+---
+title: "Property Assessment Problem"
+author: "Shah Shoib"
+date: "March 30, 2016"
+output: pdf_document
+---
+
+#Property assessments:The data that follow show assessed value for property tax purposes (Y" in thousand dollars) and sales price (Y2, in thousand dollars) for a sample of 15 parcels of land for industrial development sold recently in "arm's length" transactions in a tax district.Assume that bivariate normal model (2.74) is appropriate here.
+
+```{r}
+
+property_data <- read.table("http://www.stat.ufl.edu/~rrandles/sta4210/Rclassnotes/data/textdatasets/KutnerData/Chapter%20%202%20Data%20Sets/CH02PR42.txt",header=FALSE,sep="",col.names=c("Tax","Sales_Price"))
+
+attach(property_data)
+head(property_data);dim(property_data) 
+n<-15
+
+#a. Plot the data in a scatter diagram. Does the bivariate normal model 
+#appear to be appropriate here? Discuss.
+plot(Tax,Sales_Price,main="Scatter Plot of the Data",ylab="Sales Price")
+
+mean1 <-mean(Tax)
+var1<-sum((Tax-mean1)^2)/n
+sd1<-sqrt(var1)
+mean2 <-mean(Sales_Price)
+var2<-sum((Sales_Price-mean2)^2)/n
+sd2<-sqrt(var2)
+
+sd12 <- mean((Tax-mean1)*(Sales_Price-mean2))
+
+
+(cor12<-sd12/(sd1*sd2))# coefficient of determination
+
+#Since the r^2 is not equal to zero, it means that variable are dependent.
+#Here Y1 tends to be large when Y2 is large and also sd12 is positive so 
+#the rho12 is also positive.
+
+
+#b. Calculate r^2. What parameter is estimated by r^2? What is the 
+#interpretation of this parameter?
+
+paste("Coefficient of determination is",round(cor12,4))
+
+#c. Test whether or not Y1,and Y2 are statistically independent in the 
+#population, using test statistic (2.87) and level of significance .01. 
+#State the alternatives, decision rule, and conclusion.
+
+#H0: rho12=0
+#Ha: rho12 !=0
+
+tstar <- cor12*sqrt(n-2)/sqrt(1-(cor12)^2)
+
+qt(1-.01/2,n-2)
+#if t* <= 3.012276 conclude ho
+#if t* > 3.012276 conclude ha
+#Since t* >3.012276, we reject the null hypothesis and accept the 
+#alternate hypotheis.
+
+#d. To test P12 = .6 versus P12 != .6, would it be appropriate to use test 
+#statistic (2.87)?
+
+#No, it wouldn't be appropriate to use the test statistics
+
+#a. Obtain the Spearman rank correlation coefficient rs.
+
+#Method 1 to calculate the Spearman Rank Order Coefficient
+r1 <- rank(Tax)
+r2 <- rank(Sales_Price)
+d <- r1-r2
+d_sqr <- d^2
+n<-15
+sp.rhou <- 1 - ((6*sum(d_sqr))/(n*(n^2-1)))
+
+#Method 2 to calculate the Spearman Rank Order Coefficient
+r1 <- rank(Tax)
+r2 <- rank(Sales_Price)
+r1.bar<-mean(r1)
+r2.bar<-mean(r2)
+sp.rhou2<-(sum((r1-r1.bar)*(r2-r2.bar)))/(sum((r1-r1.bar)^2)*sum((r2-r2.bar)^2))
+
+
+#b. Test by means of the Spearman rank correlation coefficient whether an 
+#association exists between property assessments and sales prices using 
+#test statistic (2.101) with alha = .01. State the alternatives, decision 
+#rule, and conclusion.
+
+#The Spearman rank correlation coefficient can be used to test the 
+#alternatives:
+#Ho: There is no association between YI and Y2
+#Ha: There is association between YI and Y2
+#Two sided test is required since Ha includes either positive or negative 
+#association.
+
+#if t* is less than t(1-alpha/2,n-2) conclude ho
+#if t* is greater than t(1-alpha/2,n-2) conclude ha
+
+tstar <- sp.rhou*sqrt(n-2)/sqrt(1-sp.rhou^2)
+
+#for alpha = .01 
+(t<-qt(1-.01/2,n-2))
+
+2*pt(2.79,df=22)
+#Since tstar > t-crtical, we conclude Ha,that there is a association 
+#between Tax variable and Sales Price variable
+
+#c. How do your estimates and conclusions in parts (a) and (b) compare to those obtained in Problem 2.42?
+
+e<-4.0165 
+hii=0.096
+MSE=109.95
+p<-3
+d<-(e^2/p*MSE)*((hii/(1-hii)^2))
+t <- e/sqrt(MSE*(1-hii))
+4.0165/sqrt(109.95)
+se=sqrt(MSE*(1-hii))
+ri<-e/se
+detach(property_data)
+```
+
